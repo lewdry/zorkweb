@@ -32,7 +32,7 @@ body.game-active nav {
 
 body.game-active .layout-main {
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
 }
 
 @media (min-width: 600px) {
@@ -65,7 +65,7 @@ body.game-active .layout-main {
     width: 414px;
     height: auto;
     aspect-ratio: 9 / 19.5;
-    max-height: calc(100vh - 6rem);
+    max-height: calc(100dvh - 6rem);
     border-radius: 40px;
     border: 8px solid oklch(0 0 0);
     box-shadow:
@@ -75,13 +75,13 @@ body.game-active .layout-main {
   }
 
   body.game-active .phone-container {
-    max-height: 100vh;
+    max-height: 100dvh;
   }
 }
 
 @media (max-width: 599px) {
   body.game-active .phone-container {
-    height: 100vh;
+    height: 100dvh;
   }
 }
 
