@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: dracula --default;
-}
 
 /* ── Typography ───────────────────────────────────────────── */
 html,
@@ -33,6 +30,12 @@ body.game-active nav {
 body.game-active .layout-main {
   width: 100vw;
   height: 100vh;
+}
+
+@media (min-width: 600px) {
+  body.game-active .layout-main {
+    overflow: visible;
+  }
 }
 
 @media (max-width: 599px) {
@@ -73,13 +76,19 @@ body.game-active .layout-main {
   }
 }
 
+@media (max-width: 599px) {
+  body.game-active .phone-container {
+    height: 100vh;
+  }
+}
+
 /* ── App Header ──────────────────────────────────────────── */
 .app-header {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 0 max(12px, env(safe-area-inset-right)) 4px max(12px, env(safe-area-inset-left));
+  padding: 8px max(12px, env(safe-area-inset-right)) 4px max(12px, env(safe-area-inset-left));
   border-bottom-width: 1px;
   border-color: var(--color-base-200);
   z-index: 10;

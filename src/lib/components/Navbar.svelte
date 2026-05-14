@@ -2,9 +2,9 @@
 	import { page } from '$app/stores';
 
 	const games = [
-		{ id: 'zork1', label: 'Zork I' },
-		{ id: 'zork2', label: 'Zork II' },
-		{ id: 'zork3', label: 'Zork III' }
+		{ id: 'zork-i', label: 'Zork I' },
+		{ id: 'zork-ii', label: 'Zork II' },
+		{ id: 'zork-iii', label: 'Zork III' }
 	];
 
 	let menuOpen = $state(false);

@@ -129,7 +129,7 @@
 			const splitIndex = match.index + match[0].length;
 			const part2 = text.substring(splitIndex).trim();
 			addCopyright(
-				'© 1981–1986 Infocom, Inc. All rights reserved.\nZORK is a registered trademark of Infocom, Inc.'
+				'© 1980–1984 Infocom, Inc. Zork is a registered trademark of Activision Publishing, Inc. This project is not affiliated with or endorsed by Activision or Microsoft.'
 			);
 			if (part2) addMessage(part2, 'received');
 		} else {
@@ -359,8 +359,8 @@
 >
 	<!-- Header -->
 	<div class="app-header border-base-200">
-		<a href="/" class="btn btn-ghost btn-sm absolute left-3" title="Back to home">
-			<i class="fas fa-home"></i>
+		<a href="/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
+			<i class="fas fa-home text-sm"></i>
 		</a>
 		<div class="avatar-container">
 			<div class="avatar">

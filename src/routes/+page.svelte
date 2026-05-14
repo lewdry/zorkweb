@@ -14,7 +14,7 @@
 			title: 'Zork II',
 			subtitle: 'The Wizard of Frobozz',
 			description:
-				'Delve deeper beneath Zork I. Face the capricious Wizard of Frobozz and his erratic magic as you seek passage through the Land of the Dead.',
+				'The adventure continues deeper beneath the earth. Outwit the erratic magic of the Wizard of Frobozz to find your way through the Land of the Dead.',
 			badge: 'Sequel',
 			themeColor: 'secondary'
 		},
@@ -46,7 +46,10 @@
 				Welcome to the<br />Great Underground Empire
 			</h1>
 			<p class="text-base-content/70 text-lg leading-relaxed max-w-xl mx-auto">
-				Zork is one of the most influential video games of all time. Released in 1980, Zork is a classic of the interactive fiction genre. Zork Web presents the classic, unaltered games Zork I, II and III in a modern chat interface for any device.
+				Experience a classic of gaming history. Originally released in 1980, the Zork trilogy defined the interactive fiction genre.
+			</p>
+			<p class="text-base-content/70 text-lg leading-relaxed max-w-xl mx-auto">
+				Zork Web presents Zork I, II and III with a modern chat interface for any device.
 			</p>
 		</div>
 
@@ -55,7 +58,7 @@
 			{#each games as game}
 				<a
 					href="/{game.id}"
-					class="card bg-base-100 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 group overflow-hidden"
+					class="card bg-neutral shadow-xl transition-all duration-200 group overflow-hidden"
 				>
 					<!-- Colored top accent bar -->
 					<div
@@ -92,12 +95,8 @@
 		<!-- Lore blurb -->
 		<div class="prose prose-sm max-w-xl mx-auto text-base-content/60 text-center">
 			<p>
-				In 2025 Microsoft released the historical Zork source code under the MIT licence. This unaffiliated fan project is a tribute.
-			</p>
-			<p>
-				Whether you're revisiting a cherished memory or encountering a Grue for the first time,
-				your journey awaits.
-			</p>
+				Zork Web is an independent tribute made possible by Microsoft's 2025 release of the source code under the MIT license. We are dedicated to making this classic accessible to more people. Whether you are returning to an old favorite or meeting your first Grue, your journey starts here.
+			</p> 
 		</div>
 	</div>
 </section>
