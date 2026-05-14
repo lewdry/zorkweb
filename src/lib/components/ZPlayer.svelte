@@ -1,6 +1,7 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
 	import JSZM from '$lib/jszm.js';
+	import { base } from '$app/paths';
 
 	/** @type {{ gameId: string, romPath: string, gameName: string, gameSubtitle: string, themeColor?: 'primary'|'secondary'|'accent', coverImage?: string | null }} */
 	let { gameId, romPath, gameName, gameSubtitle, themeColor = 'accent', coverImage = null } = $props();
@@ -32,8 +33,8 @@
 	let isWaitingForRestart = false;
 	let msgIdCounter = 0;
 
-	const saveKey = `${gameId}-save`;
-	const historyKey = `${gameId}-history`;
+	const saveKey = $derived(`${gameId}-save`);
+	const historyKey = $derived(`${gameId}-history`);
 
 	// ── Theme color mapping ──────────────────────────────────
 	const themeBgColor = $derived(
@@ -359,7 +360,7 @@
 >
 	<!-- Header -->
 	<div class="app-header border-base-200">
-		<a href="/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
+		<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
 			<i class="fas fa-home text-sm"></i>
 		</a>
 		<div class="avatar-container">

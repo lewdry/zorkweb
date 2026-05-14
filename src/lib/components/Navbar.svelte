@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/stores';
+	import { base } from '$app/paths';
 
 	const games = [
 		{ id: 'zork-i', label: 'Zork I' },
@@ -17,7 +18,7 @@
 <nav class="navbar bg-base-100 shadow-sm z-50 min-h-[4rem]" aria-label="Main navigation">
 	<!-- Brand -->
 	<div class="navbar-start">
-		<a href="/" class="btn btn-ghost text-lg font-bold tracking-tight" onclick={closeMenu}>
+		<a href="{base}/" class="btn btn-ghost text-lg font-bold tracking-tight" onclick={closeMenu}>
 			Zork Web
 		</a>
 	</div>
@@ -27,16 +28,16 @@
 		<ul class="menu menu-horizontal px-1 gap-1">
 			<li>
 				<a
-					href="/"
-					class:active={$page.url.pathname === '/'}
+					href="{base}/"
+					class:active={$page.url.pathname === `${base}/` || $page.url.pathname === base}
 					class="rounded-btn"
 				>Home</a>
 			</li>
 			{#each games as game}
 				<li>
 					<a
-						href="/{game.id}"
-						class:active={$page.url.pathname === `/${game.id}`}
+						href="{base}/{game.id}"
+						class:active={$page.url.pathname === `${base}/${game.id}`}
 						class="rounded-btn"
 					>{game.label}</a>
 				</li>
@@ -62,9 +63,9 @@
 				onclick={closeMenu}
 				onkeydown={(e) => e.key === 'Escape' && closeMenu()}
 			>
-				<li role="menuitem"><a href="/">Home</a></li>
+				<li role="menuitem"><a href="{base}/">Home</a></li>
 				{#each games as game}
-					<li role="menuitem"><a href="/{game.id}">{game.label}</a></li>
+					<li role="menuitem"><a href="{base}/{game.id}">{game.label}</a></li>
 				{/each}
 			</ul>
 		</div>

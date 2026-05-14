@@ -1,4 +1,6 @@
 <script>
+	import { base } from '$app/paths';
+
 	const games = [
 		{
 			id: 'zork-i',
@@ -57,7 +59,7 @@
 		<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
 			{#each games as game}
 				<a
-					href="/{game.id}"
+					href="{base}/{game.id}"
 					class="card bg-neutral shadow-xl transition-all duration-200 group overflow-hidden"
 				>
 					<!-- Colored top accent bar -->
