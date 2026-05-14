@@ -1,42 +1,23 @@
-# sv
+## ZorkWeb
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+This project hosts the classic text adventure games Zork I, Zork II, and Zork III, playable directly in your browser with a modern user interface.
 
-## Creating a project
+### Features
+- **Play Zork I, II, and III**: Enjoy the original Z-machine games online.
+- **Modern Interface**: Built with [SvelteKit](https://kit.svelte.dev/) for a fast, reactive web experience.
+- **DaisyUI Styling**: Uses [DaisyUI](https://daisyui.com/) and Tailwind CSS for a clean, responsive design.
+- **ROMs Included**: Zork game files are included and ready to play.
 
-If you're seeing this, you've probably already done this step. Congrats!
+### How it Works
+The app loads Zork game ROMs and runs them in the browser using a JavaScript Z-machine interpreter. The interface is designed to be user-friendly and works well on both desktop and mobile devices.
 
-```sh
-# create a new project
-npx sv create my-app
-```
+### Getting Started
+1. Clone the repository.
+2. Install dependencies with `npm install`.
+3. Start the development server with `npm run dev`.
+4. Open your browser to the provided local address and start playing!
 
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-npx sv@0.15.3 create --template minimal --no-types --install npm .
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
+---
+Made with SvelteKit, DaisyUI, and a love for classic interactive fiction.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
