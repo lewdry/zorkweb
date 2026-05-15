@@ -25,11 +25,9 @@
 	let inputAreaEl;
 
 	// ── Visual Viewport state ────────────────────────────────
-	let inputAreaOffset = 0;
 
 	// ── Engine state (non-reactive) ───────────────────────────
 	let jszm = null;
-	let inputFormOffset = 0;
 	let runner = null;
 	let textBuffer = '';
 	let justSaved = false;
@@ -40,9 +38,7 @@
 	let msgIdCounter = 0;
 
 	const saveKey = $derived(`${gameId}-save`);
-			inputFormOffset = offset;
-			if (inputAreaEl) {
-				inputAreaEl.style.transform = offset > 0 ? `translateY(-${inputFormOffset}px)` : '';
+	const historyKey = $derived(`${gameId}-history`);
 	// ── Theme color mapping ──────────────────────────────────
 	const themeBgColor = $derived(
 		themeColor === 'primary'
@@ -97,13 +93,18 @@
 				msg = {
 					id: ++msgIdCounter,
 					type,
-					titleLine: lines[0]
+					titleLine: lines[0],
+					text: lines.slice(1).join('\n').trim()
 				};
 				// Do not blur on mobile to avoid iOS search/find bubble
 				if (!isMobileDevice()) {
 					commandInputEl?.blur();
 					commandInputEl?.focus();
 				}
+			} else {
+				msg = { id: ++msgIdCounter, type, text: trimmedText };
+			}
+		} else {
 			msg = { id: ++msgIdCounter, type, text: trimmedText };
 		}
 		messages = [...messages, msg];
@@ -111,7 +112,6 @@
 	}
 
 	async function addCopyright(text) {
-			style={inputFormOffset > 0 ? `transform: translateY(-${inputFormOffset}px); will-change: transform;` : ''}
 		messages = [...messages, { id: ++msgIdCounter, type: 'copyright', text }];
 		await tick();
 		scrollToBottom();
@@ -251,14 +251,7 @@
 			const viewport = window.visualViewport;
 			phoneContainerEl.style.height = `${viewport.height}px`;
 			phoneContainerEl.style.top = `${viewport.offsetTop}px`;
-		}
-		// Optionally still shift the whole container for extra safety (if needed)
-		if (window.visualViewport && phoneContainerEl) {
-			const viewport = window.visualViewport;
-			const offset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-			inputAreaOffset = offset;
-			// Move the whole phone container up if needed
-			phoneContainerEl.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
+			phoneContainerEl.style.transform = 'none'; // Clear any existing transform
 		}
 		requestAnimationFrame(() => {
 			scrollToBottom();
@@ -376,9 +369,9 @@
 			// Restore container height/top and transform when keyboard closes
 			const restoreAndScroll = () => {
 				if (window.visualViewport && phoneContainerEl) {
-					phoneContainerEl.style.height = '';
-					phoneContainerEl.style.top = '';
-					phoneContainerEl.style.transform = '';
+					phoneContainerEl.style.height = '100dvh';
+					phoneContainerEl.style.top = '0';
+					phoneContainerEl.style.transform = 'none';
 				}
 				scrollToBottom();
 			};
@@ -489,10 +482,11 @@
 				bind:value={commandValue}
 				bind:this={commandInputEl}
 				placeholder="What now?"
-				autocomplete="on"
+				enterkeyhint="send"
+				autocomplete="off"
 				autocapitalize="sentences"
-				autocorrect="on"
-				spellcheck="true"
+				autocorrect="off"
+				spellcheck="false"
 				inputmode="text"
 				class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none"
 				aria-label="Command input"

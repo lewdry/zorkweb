@@ -1,7 +1,0 @@
-/* Override DaisyUI/Tailwind for less rounded cards and buttons */
-.card,
-.btn {
-  border-radius: 0.125rem !important; /* Tailwind rounded-sm */
-}
-
-/* For perfectly square corners, use 0 instead of 0.125rem */
