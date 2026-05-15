@@ -408,31 +408,7 @@ function handleInputFocus() {
 	bind:this={phoneContainerEl}
 	style="--theme-accent: {themeBgColor}; --theme-accent-content: {themeContentColor};"
 >
-	<!-- Header -->
-	<!-- Home button moved outside form for iOS accessory bar suppression -->
-	<div class="app-header border-base-200">
-		<div class="avatar-container">
-			<div class="avatar">
-				<div class="w-12 h-12 rounded-full overflow-hidden">
-					{#if coverImage}
-						<img src={coverImage} alt="{gameName} cover" class="object-cover w-full h-full" />
-					{:else}
-						<div
-							class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-600 to-amber-400 text-base-100 font-bold text-xs"
-						>
-							{gameId.toUpperCase()}
-						</div>
-					{/if}
-				</div>
-			</div>
-		</div>
-		<div class="contact-info">
-			<div class="name">{gameName}</div>
-			<div class="subtitle">{gameSubtitle}</div>
-		</div>
-	</div>
-
-	<!-- Home button restored to header -->
+	<!-- Header (single instance, with Home button) -->
 	<div class="app-header border-base-200">
 		<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
 			<i class="fas fa-home text-sm"></i>
@@ -457,6 +433,8 @@ function handleInputFocus() {
 			<div class="subtitle">{gameSubtitle}</div>
 		</div>
 	</div>
+
+
 
 	<!-- Message area -->
 	<div
@@ -505,22 +483,20 @@ function handleInputFocus() {
 			onsubmit={handleSubmit}
 		>
 			<!-- No <label> for input, only aria-label for accessibility -->
-			<input
-				type="search"
-				name="z_99_cmd_input_xyz"
-				id="zmachine-command"
+			<textarea
+				rows="1"
 				bind:value={commandValue}
 				bind:this={commandInputEl}
-				enterkeyhint="send"
-				autocomplete="off"
-				autocapitalize="none"
-				autocorrect="off"
-				spellcheck="false"
-				inputmode={inputMode}
-				class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none input-font-fix"
+				on:keydown={(e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						handleSubmit(e);
+					}
+				}}
+				class="input input-ghost input-font-fix resize-none py-2 flex-1 focus:bg-transparent focus:outline-none border-none"
 				aria-label="Command input"
-				   onfocus={handleInputFocus}
-			/>
+				on:focus={handleInputFocus}
+			></textarea>
 			<button
 				type="submit"
 				disabled={isSendDisabled}
