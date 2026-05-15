@@ -141,7 +141,7 @@ import './ZPlayer.iosfix.css';
 			const splitIndex = match.index + match[0].length;
 			const part2 = text.substring(splitIndex).trim();
 			addCopyright(
-				'© 1980–1984 Infocom, Inc. Zork is a registered trademark of Activision Publishing, Inc. This project is not affiliated with or endorsed by Activision or Microsoft.'
+				'© 1980–1982 Infocom, Inc. Zork is a registered trademark of Activision Publishing, Inc.'
 			);
 			if (part2) addMessage(part2, 'received');
 		} else {
@@ -404,10 +404,8 @@ import './ZPlayer.iosfix.css';
 	style="--theme-accent: {themeBgColor}; --theme-accent-content: {themeContentColor};"
 >
 	<!-- Header -->
+	<!-- Home button moved outside form for iOS accessory bar suppression -->
 	<div class="app-header border-base-200">
-		<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
-			<i class="fas fa-home text-sm"></i>
-		</a>
 		<div class="avatar-container">
 			<div class="avatar">
 				<div class="w-12 h-12 rounded-full overflow-hidden">
@@ -428,6 +426,11 @@ import './ZPlayer.iosfix.css';
 			<div class="subtitle">{gameSubtitle}</div>
 		</div>
 	</div>
+
+	<!-- Home button OUTSIDE form -->
+	<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2 z-10" title="Back to home">
+		<i class="fas fa-home text-sm"></i>
+	</a>
 
 	<!-- Message area -->
 	<div
@@ -475,6 +478,7 @@ import './ZPlayer.iosfix.css';
 			class="bg-base-200 flex items-center gap-2 p-1 rounded-full w-full"
 			onsubmit={handleSubmit}
 		>
+			<!-- No <label> for input, only aria-label for accessibility -->
 			<input
 				type="search"
 				name="zmachine-command"

@@ -120,7 +120,7 @@
 			<p class="text-xs leading-snug mb-0 p-0">
 				Zork for the Web is not affiliated with
 				Microsoft or Activision. Zork is a registered trademark of its
-				respective owners. Source code is used under the MIT License.
+				respective owners. The web interface is a non-commercial, open-source project under the MIT License.
 			</p>
 		</div>
 	</div>
