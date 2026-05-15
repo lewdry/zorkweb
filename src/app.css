@@ -296,5 +296,5 @@ body.game-active nav {
 /* ── Hero section ────────────────────────────────────────── */
 .hero {
   align-items: flex-start;
-  padding-top: 2rem;
+  padding-top: 0rem;
 }
