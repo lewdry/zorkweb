@@ -97,13 +97,13 @@
 				msg = {
 					id: ++msgIdCounter,
 					type,
-					titleLine: lines[0],
-		// Do not blur on mobile to avoid iOS search/find bubble
-		if (!isMobileDevice()) {
-			commandInputEl?.blur();
-			commandInputEl?.focus();
-		}
-		} else {
+					titleLine: lines[0]
+				};
+				// Do not blur on mobile to avoid iOS search/find bubble
+				if (!isMobileDevice()) {
+					commandInputEl?.blur();
+					commandInputEl?.focus();
+				}
 			msg = { id: ++msgIdCounter, type, text: trimmedText };
 		}
 		messages = [...messages, msg];
