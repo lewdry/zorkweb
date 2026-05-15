@@ -164,7 +164,7 @@ function handleInputFocus() {
 
 					if (isAutoRestoring) {
 						textBuffer = '';
-						isAutoRestoring = false;
+					onfocus={handleInputFocus}
 						isWaitingForInput = false;
 						setTimeout(() => runMachine('restore\n'), 0);
 						return;
@@ -487,15 +487,15 @@ function handleInputFocus() {
 				rows="1"
 				bind:value={commandValue}
 				bind:this={commandInputEl}
-				on:keydown={(e) => {
-					if (e.key === 'Enter') {
-						e.preventDefault();
-						handleSubmit(e);
-					}
-				}}
+				   onkeydown={(e) => {
+					   if (e.key === 'Enter' && !e.shiftKey) {
+						   e.preventDefault();
+						   handleSubmit(e);
+					   }
+				   }}
 				class="input input-ghost input-font-fix resize-none py-2 flex-1 focus:bg-transparent focus:outline-none border-none"
 				aria-label="Command input"
-				on:focus={handleInputFocus}
+				   onfocus={handleInputFocus}
 			></textarea>
 			<button
 				type="submit"
