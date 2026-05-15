@@ -453,14 +453,27 @@ function handleInputFocus() {
 				<div class="message-item {msg.type === 'sent' ? 'message-sent' : 'message-received'}">
 					{#if msg.titleLine}
 						<span class="font-bold block mb-1">{msg.titleLine}</span>
-						{#if msg.text}<span>{msg.text}</span>{/if}
+						{#if msg.text}
+							{@html addTabindexToLinks(msg.text)}
+						{/if}
 					{:else}
-						{msg.text}
+						{@html addTabindexToLinks(msg.text)}
 					{/if}
 				</div>
 			{/if}
 		{/each}
 	</div>
+
+<script>
+// Utility to add tabindex="-1" to all <a> tags in message text
+function addTabindexToLinks(html) {
+	if (!html) return '';
+	return html.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
+		if (/tabindex\s*=/.test(attrs)) return `<a${attrs}>`;
+		return `<a tabindex="-1"${attrs}>`;
+	});
+}
+</script>
 
 	<!-- Scroll-to-bottom FAB -->
 	<button
