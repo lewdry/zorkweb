@@ -159,20 +159,26 @@ function handleInputFocus() {
 			let result = runner.next(resumeValue);
 			while (!result.done) {
 				if (result.value && result.value.type === 'waitForInput') {
-					isWaitingForInput = true;
-
+					// If we are auto-restoring, send the restore command, then continue
 					if (isAutoRestoring) {
+						isAutoRestoring = false;
 						textBuffer = '';
-					onfocus={handleInputFocus}
-						isWaitingForInput = false;
-						setTimeout(() => runMachine('restore\n'), 0);
+						setTimeout(() => {
+							// Send the restore command, then re-enter runMachine
+							runMachine('restore\n');
+						}, 0);
 						return;
 					}
 
+					isWaitingForInput = true;
 					flushBuffer();
 
 					if (isAutoSaving) {
 						isAutoSaving = false;
+					} else if (justRestored) {
+						// After restoring, just enable input and return
+						justRestored = false;
+						return;
 					} else {
 						isAutoSaving = true;
 						isWaitingForInput = false;
