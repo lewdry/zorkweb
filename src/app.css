@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./app.override.css";
 @plugin "daisyui" {
   themes: dracula;
 }
@@ -32,7 +33,8 @@ body.game-active nav {
 
 body.game-active .layout-main {
   width: 100vw;
-  height: 100dvh;
+  height: 100svh;
+  height: 100dvh; /* fallback for browsers without svh */
 }
 
 @media (min-width: 600px) {
@@ -65,7 +67,8 @@ body.game-active .layout-main {
     width: 414px;
     height: auto;
     aspect-ratio: 9 / 19.5;
-    max-height: calc(100dvh - 6rem);
+    max-height: calc(100svh - 6rem);
+    max-height: calc(100dvh - 6rem); /* fallback */
     border-radius: 40px;
     border: 8px solid oklch(0 0 0);
     box-shadow:
@@ -75,13 +78,15 @@ body.game-active .layout-main {
   }
 
   body.game-active .phone-container {
-    max-height: 100dvh;
+    max-height: 100svh;
+    max-height: 100dvh; /* fallback */
   }
 }
 
 @media (max-width: 599px) {
   body.game-active .phone-container {
-    height: 100dvh;
+    height: 100svh;
+    height: 100dvh; /* fallback */
   }
 }
 

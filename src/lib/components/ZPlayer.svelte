@@ -21,6 +21,11 @@
 	let commandInputEl;
 	/** @type {HTMLDivElement} */
 	let phoneContainerEl;
+	/** @type {HTMLDivElement} */
+	let inputAreaEl;
+
+	// ── Visual Viewport state ────────────────────────────────
+	let inputAreaOffset = 0;
 
 	// ── Engine state (non-reactive) ───────────────────────────
 	let jszm = null;
@@ -103,8 +108,10 @@
 		tick().then(() => scrollToBottom());
 	}
 
-	function addCopyright(text) {
+	async function addCopyright(text) {
 		messages = [...messages, { id: ++msgIdCounter, type: 'copyright', text }];
+		await tick();
+		scrollToBottom();
 	}
 
 	// ── Z-Machine logic ───────────────────────────────────────
@@ -234,6 +241,16 @@
 	function handleViewportResize() {
 		if (!isMobileDevice()) return;
 		window.scrollTo(0, 0);
+		// Visual Viewport API: adjust input area offset
+		if (window.visualViewport) {
+			const viewport = window.visualViewport;
+			// How much is the bottom of the layout covered by the keyboard?
+			const offset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
+			inputAreaOffset = offset;
+			if (inputAreaEl) {
+				inputAreaEl.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
+			}
+		}
 		requestAnimationFrame(() => {
 			scrollToBottom();
 			setTimeout(scrollToBottom, 100);
@@ -321,9 +338,12 @@
 	onMount(() => {
 		document.body.classList.add('game-active');
 
+
 		if (window.visualViewport) {
 			window.visualViewport.addEventListener('resize', handleViewportResize);
-			window.visualViewport.addEventListener('scroll', () => window.scrollTo(0, 0));
+			window.visualViewport.addEventListener('scroll', handleViewportResize);
+			// Initial adjustment
+			handleViewportResize();
 		} else {
 			window.addEventListener('resize', handleViewportResize);
 		}
@@ -347,6 +367,7 @@
 		document.body.classList.remove('game-active');
 		if (window.visualViewport) {
 			window.visualViewport.removeEventListener('resize', handleViewportResize);
+			window.visualViewport.removeEventListener('scroll', handleViewportResize);
 		} else {
 			window.removeEventListener('resize', handleViewportResize);
 		}
@@ -420,8 +441,9 @@
 		<i class="fas fa-chevron-down text-neutral-content"></i>
 	</button>
 
+
 	<!-- Input area -->
-	<div class="input-area border-base-200 bg-base-100">
+	<div class="input-area border-base-200 bg-base-100" bind:this={inputAreaEl}>
 		<form
 			id="input-form"
 			class="bg-base-200 flex items-center gap-2 p-1 rounded-full w-full"

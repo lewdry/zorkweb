@@ -7,7 +7,7 @@
 			title: 'Zork I',
 			subtitle: 'The Great Underground Empire',
 			description:
-				'Begin your descent into the Great Underground Empire. Navigate treacherous passages, battle a lurking Grue, and uncover the twenty treasures of Zork.',
+				'Begin your descent into the Underground Empire. Navigate treacherous passages, battle a lurking Grue, and uncover the twenty treasures of Zork.',
 			badge: 'Start Here',
 			themeColor: 'accent'
 		},
@@ -33,10 +33,10 @@
 </script>
 
 <svelte:head>
-	<title>Zork Web — The Great Underground Empire</title>
+	<title>Zork Web</title>
 	<meta
 		name="description"
-		content="Play Zork I, II, and III in your browser. A modern chat-bubble interface powered by the JSZM engine."
+		content="Play Zork I, II, and III in your browser. A modern message interface powered by the JSZM engine, Svelte and Daisy UI."
 	/>
 </svelte:head>
 
@@ -44,14 +44,14 @@
 <section class="hero min-h-[calc(100dvh-4rem)] bg-base-200">
 	<div class="hero-content text-center flex-col gap-8 pt-4 pb-16 px-4">
 		<div class="max-w-2xl">
-			<h1 class="text-5xl font-bold leading-tight mb-4">
+			<h1 class="text-3xl md:text-4xl font-bold leading-tight mb-4">
 				Welcome to the<br />Great Underground Empire
 			</h1>
 			<p class="text-base-content/70 text-lg leading-relaxed max-w-xl mx-auto">
-				Experience a classic of gaming history. Originally released in 1980, the Zork trilogy defined the interactive fiction genre.
+				Experience a classic of gaming history. Released in 1980, Zork defined the interactive fiction genre.
 			</p>
 			<p class="text-base-content/70 text-lg leading-relaxed max-w-xl mx-auto">
-				Zork Web presents Zork I, II and III with a modern chat interface for any device.
+				Zork Web presents Zork I, II and III with a modern chat interface.
 			</p>
 		</div>
 
@@ -97,7 +97,7 @@
 		<!-- Lore blurb -->
 		<div class="prose prose-sm max-w-xl mx-auto text-base-content/60 text-center">
 			<p>
-				Zork Web is an independent tribute made possible by Microsoft's 2025 release of the source code under the MIT license. We are dedicated to making this classic accessible to more people. Whether you are returning to an old favorite or meeting your first Grue, your journey starts here.
+				Zork Web is an independent tribute made possible by Microsoft's 2025 release of Zork's source code. We are dedicated to making this classic accessible to more people. Whether you are returning to an old favorite or meeting your first Grue, your journey starts here.
 			</p> 
 		</div>
 	</div>
