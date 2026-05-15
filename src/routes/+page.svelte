@@ -41,19 +41,17 @@
 </svelte:head>
 
 <!-- Hero -->
+
 <section class="hero min-h-[calc(100dvh-4rem)] bg-base-200">
-	<div class="hero-content text-center flex-col gap-8 pt-4 pb-16 px-4">
-		<div class="max-w-2xl">
-			<h1 class="text-3xl md:text-4xl font-bold leading-tight mb-4">
-				Welcome to the<br />Great Underground Empire
-			</h1>
-			<p class="text-base-content/70 text-lg leading-relaxed max-w-xl mx-auto">
-				Experience a classic of gaming history. Released in 1980, Zork defined the interactive fiction genre.
-			</p>
-			<p class="text-base-content/70 text-lg leading-relaxed max-w-xl mx-auto">
-				Zork Web presents Zork I, II and III with a modern chat interface.
-			</p>
-		</div>
+   <div class="hero-content text-center flex-col gap-8 pt-4 pb-16 px-4">
+	   <div class="max-w-2xl">
+		   <h1 class="text-2xl md:text-3xl font-bold leading-tight mb-4">
+			   Welcome to the<br />Great Underground Empire
+		   </h1>
+		   <p class="text-base-content/70 text-base leading-relaxed max-w-xl mx-auto">
+			   Zork defined interactive fiction in 1980. This project runs the original source code inside a clean, modern chat interface.
+		   </p>
+	   </div>
 
 		<!-- Game cards -->
 		<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-3xl">
@@ -94,11 +92,16 @@
 			{/each}
 		</div>
 
-		<!-- Lore blurb -->
-		<div class="prose prose-sm max-w-xl mx-auto text-base-content/60 text-center">
-			<p>
-				Zork Web is an independent tribute made possible by Microsoft's 2025 release of Zork's source code. We are dedicated to making this classic accessible to more people. Whether you are returning to an old favorite or meeting your first Grue, your journey starts here.
-			</p> 
-		</div>
+		   <!-- Lore blurb -->
+		   <div class="prose prose-xs max-w-xl mx-auto text-base-content/40 text-center mb-0 p-0">
+			   <p class="text-xs leading-snug mb-0 p-0">
+				   Zork Web is a fan project made possible by Microsoft's 2025 release of the Zork source code. It makes the original trilogy accessible to everyone, returning fans or new players.
+			   </p>
+			   <div class="my-2"></div>
+			   <!-- Copyright blurb -->
+			   <p class="text-xs leading-snug mb-0 p-0">
+				This is an independent project and is not affiliated with Microsoft or Activision. Zork is a registered trademark of its respective owners. Source code is used under the MIT License.
+			   </p>
+		   </div>
 	</div>
 </section>
