@@ -475,40 +475,43 @@ function handleInputFocus() {
 
 	<!-- Input area -->
 	<div class="input-area border-base-200 bg-base-100" bind:this={inputAreaEl}>
-		<form
-			id="input-form"
-			role="presentation"
-			action="javascript:void(0);"
-			class="bg-base-200 flex items-center gap-2 p-1 rounded-full w-full"
-			onsubmit={handleSubmit}
-		>
-			<!-- No <label> for input, only aria-label for accessibility -->
-			<textarea
-				rows="1"
-				bind:value={commandValue}
-				bind:this={commandInputEl}
-				   onkeydown={(e) => {
-					   if (e.key === 'Enter' && !e.shiftKey) {
-						   e.preventDefault();
-						   handleSubmit(e);
-					   }
-				   }}
-				class="input input-ghost input-font-fix resize-none py-2 flex-1 focus:bg-transparent focus:outline-none border-none"
-				aria-label="Command input"
-				   onfocus={handleInputFocus}
-			></textarea>
+		<div class="input-wrapper flex items-center gap-2 p-1 rounded-full w-full bg-base-200">
+			<form
+				id="input-form"
+				role="presentation"
+				action="javascript:void(0);"
+				class="flex-1"
+				onsubmit={handleSubmit}
+			>
+				<textarea
+					rows="1"
+					placeholder="What now?"
+					bind:value={commandValue}
+					bind:this={commandInputEl}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' && !e.shiftKey) {
+							e.preventDefault();
+							handleSubmit(e);
+						}
+					}}
+					class="input input-ghost input-font-fix resize-none py-2 flex-1 focus:bg-transparent focus:outline-none border-none"
+					aria-label="Command input"
+					   onfocus={handleInputFocus}
+				></textarea>
+			</form>
 			<button
-				type="submit"
+				type="button"
 				disabled={isSendDisabled}
 				class="btn btn-circle btn-sm"
 				class:btn-accent={themeColor === 'accent'}
 				class:btn-secondary={themeColor === 'secondary'}
 				class:btn-primary={themeColor === 'primary'}
 				aria-label="Send command"
+				   onclick={handleSubmit}
 			>
 				<i class="fas fa-arrow-up text-primary-content"></i>
 			</button>
-		</form>
+		</div>
 	</div>
 
 	<div class="home-indicator"></div>
