@@ -16,9 +16,9 @@ const config = {
 		paths: {
 			base: '/zorkweb'
 		},
-		       prerender: {
-			       entries: ['*']
-		       }
+		prerender: {
+			entries: ['*']
+		}
 	}
 };
 
