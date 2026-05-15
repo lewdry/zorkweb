@@ -1,26 +1,18 @@
-/* iOS Safari font-size fix: force 16px, scale to 0.875 for 14px look */
-/* Remove transition for instant scale, prevent pop */
 .message-font-fix .message-item,
 .message-font-fix .message-sent,
 .message-font-fix .message-received {
-  font-size: 14px !important;
   transform-origin: left;
   display: inline-block;
-  transition: none !important;
 }
 
 .input-font-fix {
   font-size: 16px !important;
-  transform: scale(1);
-  transform-origin: left;
-  width: calc(100% * 1.14);
 }
 
 @media (max-width: 800px) {
   .phone-container {
     height: 100dvh !important;
     min-height: 100dvh !important;
-    /* Remove any JS height adjustment, use padding-bottom for keyboard */
   }
 }
 
