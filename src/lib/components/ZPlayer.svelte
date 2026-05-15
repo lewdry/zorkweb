@@ -1,4 +1,5 @@
 <script>
+import './ZPlayer.iosfix.css';
 	import { onMount, onDestroy, tick } from 'svelte';
 	import JSZM from '$lib/jszm.js';
 	import { base } from '$app/paths';
@@ -242,22 +243,17 @@
 
 	// ── Viewport / keyboard resize (mobile) ───────────────────
 	function handleViewportResize() {
-		if (!isMobileDevice()) return;
-		window.scrollTo(0, 0);
-		document.body.scrollTop = 0;
-		document.documentElement.scrollTop = 0;
-		// Visual Viewport API: adjust phone container height/top
-		if (window.visualViewport && phoneContainerEl) {
-			const viewport = window.visualViewport;
-			phoneContainerEl.style.height = `${viewport.height}px`;
-			phoneContainerEl.style.top = `${viewport.offsetTop}px`;
-			phoneContainerEl.style.transform = 'none'; // Clear any existing transform
-		}
-		requestAnimationFrame(() => {
-			scrollToBottom();
-			setTimeout(scrollToBottom, 100);
-			setTimeout(scrollToBottom, 300);
-		});
+		       if (!isMobileDevice()) return;
+		       window.scrollTo(0, 0);
+		       if (window.visualViewport && phoneContainerEl) {
+			       const viewport = window.visualViewport;
+			       const keyboardHeight = window.innerHeight - viewport.height;
+			       phoneContainerEl.style.paddingBottom = keyboardHeight > 0 ? `${keyboardHeight}px` : '0';
+			       phoneContainerEl.style.top = `${viewport.offsetTop}px`;
+		       }
+		       requestAnimationFrame(() => {
+			       scrollToBottom();
+		       });
 	}
 
 	// ── Initialise engine ─────────────────────────────────────
@@ -435,7 +431,7 @@
 
 	<!-- Message area -->
 	<div
-		class="message-area bg-base-200/30"
+		class="message-area bg-base-200/30 message-font-fix"
 		id="message-area"
 		bind:this={messageAreaEl}
 		onscroll={updateScrollFab}
@@ -488,7 +484,7 @@
 				autocorrect="off"
 				spellcheck="false"
 				inputmode="text"
-				class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none"
+				   class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none input-font-fix"
 				aria-label="Command input"
 			/>
 			<button
