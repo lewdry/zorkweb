@@ -470,21 +470,25 @@ import './ZPlayer.iosfix.css';
 	<div class="input-area border-base-200 bg-base-100" bind:this={inputAreaEl}>
 		<form
 			id="input-form"
+			role="presentation"
+			action="javascript:void(0);"
 			class="bg-base-200 flex items-center gap-2 p-1 rounded-full w-full"
 			onsubmit={handleSubmit}
 		>
 			<input
-				type="text"
+				type="search"
+				name="zmachine-command"
+				id="zmachine-command"
 				bind:value={commandValue}
 				bind:this={commandInputEl}
 				placeholder="What now?"
 				enterkeyhint="send"
 				autocomplete="off"
-				autocapitalize="sentences"
+				autocapitalize="off"
 				autocorrect="off"
 				spellcheck="false"
 				inputmode="text"
-				   class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none input-font-fix"
+				class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none input-font-fix"
 				aria-label="Command input"
 			/>
 			<button
