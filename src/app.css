@@ -1,3 +1,29 @@
+/* iOS Safari font-size fix: force 16px, scale to 0.875 for 14px look */
+/* Remove transition for instant scale, prevent pop */
+.message-font-fix .message-item,
+.message-font-fix .message-sent,
+.message-font-fix .message-received {
+  font-size: 14px !important;
+  transform-origin: left;
+  display: inline-block;
+  transition: none !important;
+}
+
+.input-font-fix {
+  font-size: 16px !important;
+  transform: scale(1);
+  transform-origin: left;
+  width: calc(100% * 1.14);
+}
+
+@media (max-width: 800px) {
+  .phone-container {
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    /* Remove any JS height adjustment, use padding-bottom for keyboard */
+  }
+}
+
 @import "tailwindcss";
 
 @plugin "daisyui" {
@@ -38,10 +64,22 @@ body.game-active nav {
   overflow: hidden;
 }
 
-body.game-active .layout-main {
-  width: 100vw;
-  height: 100svh;
-  height: 100dvh; /* fallback for browsers without svh */
+
+@media (max-width: 599px) {
+  body.game-active .layout-main {
+    width: 100vw;
+    height: 100svh;
+    height: 100dvh; /* fallback for browsers without svh */
+  }
+}
+
+@media (min-width: 600px) {
+  body.game-active .layout-main {
+    min-height: 100vh;
+    height: auto;
+    width: 100vw;
+    overflow: visible;
+  }
 }
 
 @media (min-width: 600px) {
@@ -74,6 +112,7 @@ body.game-active .layout-main {
     width: 414px;
     height: auto;
     aspect-ratio: 9 / 19.5;
+    max-height: 800px;
     max-height: calc(100svh - 6rem);
     max-height: calc(100dvh - 6rem); /* fallback */
     border-radius: 40px;

@@ -1,5 +1,4 @@
 <script>
-import './ZPlayer.iosfix.css';
 	import { onMount, onDestroy, tick } from 'svelte';
 	import JSZM from '$lib/jszm.js';
 	import { base } from '$app/paths';
@@ -369,7 +368,7 @@ function handleInputFocus() {
 		commandInputEl?.addEventListener('blur', () => {
 			// Restore container height/top and transform when keyboard closes
 			const restoreAndScroll = () => {
-				if (window.visualViewport && phoneContainerEl) {
+				if (window.visualViewport && phoneContainerEl && isMobileDevice()) {
 					phoneContainerEl.style.height = '100dvh';
 					phoneContainerEl.style.top = '0';
 					phoneContainerEl.style.transform = 'none';
@@ -454,26 +453,15 @@ function handleInputFocus() {
 					{#if msg.titleLine}
 						<span class="font-bold block mb-1">{msg.titleLine}</span>
 						{#if msg.text}
-							{@html addTabindexToLinks(msg.text)}
+							{@html msg.text}
 						{/if}
 					{:else}
-						{@html addTabindexToLinks(msg.text)}
+						{@html msg.text}
 					{/if}
 				</div>
 			{/if}
 		{/each}
 	</div>
-
-<script>
-// Utility to add tabindex="-1" to all <a> tags in message text
-function addTabindexToLinks(html) {
-	if (!html) return '';
-	return html.replace(/<a\b([^>]*)>/gi, (match, attrs) => {
-		if (/tabindex\s*=/.test(attrs)) return `<a${attrs}>`;
-		return `<a tabindex="-1"${attrs}>`;
-	});
-}
-</script>
 
 	<!-- Scroll-to-bottom FAB -->
 	<button
@@ -523,7 +511,7 @@ function addTabindexToLinks(html) {
 			<button
 				type="button"
 				disabled={isSendDisabled}
-				class="btn btn-circle btn-sm"
+				class="btn btn-circle btn-md"
 				class:btn-accent={themeColor === 'accent'}
 				class:btn-secondary={themeColor === 'secondary'}
 				class:btn-primary={themeColor === 'primary'}
