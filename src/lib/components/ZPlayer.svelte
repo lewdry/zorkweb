@@ -14,6 +14,11 @@ import './ZPlayer.iosfix.css';
 	let isWaitingForInput = $state(false);
 	let isSendDisabled = $state(false);
 	let fabHidden = $state(true);
+	let inputMode = $state('none');
+// ── Input focus handler for iOS accessory bar hack ───────
+function handleInputFocus() {
+	inputMode = 'text';
+}
 
 	// ── DOM refs ─────────────────────────────────────────────
 	/** @type {HTMLDivElement} */
@@ -427,10 +432,31 @@ import './ZPlayer.iosfix.css';
 		</div>
 	</div>
 
-	<!-- Home button OUTSIDE form -->
-	<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2 z-10" title="Back to home">
-		<i class="fas fa-home text-sm"></i>
-	</a>
+	<!-- Home button restored to header -->
+	<div class="app-header border-base-200">
+		<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
+			<i class="fas fa-home text-sm"></i>
+		</a>
+		<div class="avatar-container">
+			<div class="avatar">
+				<div class="w-12 h-12 rounded-full overflow-hidden">
+					{#if coverImage}
+						<img src={coverImage} alt="{gameName} cover" class="object-cover w-full h-full" />
+					{:else}
+						<div
+							class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-600 to-amber-400 text-base-100 font-bold text-xs"
+						>
+							{gameId.toUpperCase()}
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+		<div class="contact-info">
+			<div class="name">{gameName}</div>
+			<div class="subtitle">{gameSubtitle}</div>
+		</div>
+	</div>
 
 	<!-- Message area -->
 	<div
@@ -481,19 +507,19 @@ import './ZPlayer.iosfix.css';
 			<!-- No <label> for input, only aria-label for accessibility -->
 			<input
 				type="search"
-				name="zmachine-command"
+				name="z_99_cmd_input_xyz"
 				id="zmachine-command"
 				bind:value={commandValue}
 				bind:this={commandInputEl}
-				placeholder="What now?"
 				enterkeyhint="send"
 				autocomplete="off"
-				autocapitalize="off"
+				autocapitalize="none"
 				autocorrect="off"
 				spellcheck="false"
-				inputmode="text"
+				inputmode={inputMode}
 				class="input input-ghost input-sm flex-1 focus:bg-transparent focus:outline-none border-none input-font-fix"
 				aria-label="Command input"
+				   onfocus={handleInputFocus}
 			/>
 			<button
 				type="submit"
