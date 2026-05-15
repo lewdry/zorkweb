@@ -19,7 +19,7 @@
 	<!-- Brand -->
 	<div class="navbar-start">
 		<a href="{base}/" class="btn btn-ghost text-lg font-bold tracking-tight" onclick={closeMenu}>
-			Zork Web
+			Zork for the Web
 		</a>
 	</div>
 

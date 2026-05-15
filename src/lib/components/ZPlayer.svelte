@@ -498,9 +498,17 @@ function addTabindexToLinks(html) {
 			>
 				<textarea
 					rows="1"
+					name="z_99_cmd_input_xyz"
+					id="zmachine-command"
 					placeholder="What now?"
 					bind:value={commandValue}
 					bind:this={commandInputEl}
+					autocomplete="off"
+					autocorrect="off"
+					autocapitalize="none"
+					spellcheck="false"
+					enterkeyhint="send"
+					inputmode="text"
 					onkeydown={(e) => {
 						if (e.key === 'Enter' && !e.shiftKey) {
 							e.preventDefault();
@@ -510,7 +518,7 @@ function addTabindexToLinks(html) {
 					class="input input-ghost input-font-fix resize-none py-2 flex-1 focus:bg-transparent focus:outline-none border-none"
 					aria-label="Command input"
 					   onfocus={handleInputFocus}
-				></textarea>
+					></textarea>
 			</form>
 			<button
 				type="button"
