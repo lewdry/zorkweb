@@ -29,6 +29,7 @@
 
 	// ── Engine state (non-reactive) ───────────────────────────
 	let jszm = null;
+	let inputFormOffset = 0;
 	let runner = null;
 	let textBuffer = '';
 	let justSaved = false;
@@ -39,8 +40,9 @@
 	let msgIdCounter = 0;
 
 	const saveKey = $derived(`${gameId}-save`);
-	const historyKey = $derived(`${gameId}-history`);
-
+			inputFormOffset = offset;
+			if (inputAreaEl) {
+				inputAreaEl.style.transform = offset > 0 ? `translateY(-${inputFormOffset}px)` : '';
 	// ── Theme color mapping ──────────────────────────────────
 	const themeBgColor = $derived(
 		themeColor === 'primary'
@@ -96,11 +98,11 @@
 					id: ++msgIdCounter,
 					type,
 					titleLine: lines[0],
-					text: lines.slice(1).join('\n').trim()
-				};
-			} else {
-				msg = { id: ++msgIdCounter, type, text: trimmedText };
-			}
+		// Do not blur on mobile to avoid iOS search/find bubble
+		if (!isMobileDevice()) {
+			commandInputEl?.blur();
+			commandInputEl?.focus();
+		}
 		} else {
 			msg = { id: ++msgIdCounter, type, text: trimmedText };
 		}
@@ -109,6 +111,7 @@
 	}
 
 	async function addCopyright(text) {
+			style={inputFormOffset > 0 ? `transform: translateY(-${inputFormOffset}px); will-change: transform;` : ''}
 		messages = [...messages, { id: ++msgIdCounter, type: 'copyright', text }];
 		await tick();
 		scrollToBottom();
