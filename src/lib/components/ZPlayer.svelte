@@ -244,15 +244,21 @@
 	function handleViewportResize() {
 		if (!isMobileDevice()) return;
 		window.scrollTo(0, 0);
-		// Visual Viewport API: adjust input area offset
-		if (window.visualViewport) {
+		document.body.scrollTop = 0;
+		document.documentElement.scrollTop = 0;
+		// Visual Viewport API: adjust phone container height/top
+		if (window.visualViewport && phoneContainerEl) {
 			const viewport = window.visualViewport;
-			// How much is the bottom of the layout covered by the keyboard?
+			phoneContainerEl.style.height = `${viewport.height}px`;
+			phoneContainerEl.style.top = `${viewport.offsetTop}px`;
+		}
+		// Optionally still shift the whole container for extra safety (if needed)
+		if (window.visualViewport && phoneContainerEl) {
+			const viewport = window.visualViewport;
 			const offset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
 			inputAreaOffset = offset;
-			if (inputAreaEl) {
-				inputAreaEl.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
-			}
+			// Move the whole phone container up if needed
+			phoneContainerEl.style.transform = offset > 0 ? `translateY(-${offset}px)` : '';
 		}
 		requestAnimationFrame(() => {
 			scrollToBottom();
@@ -331,6 +337,8 @@
 			}
 
 			runMachine();
+			await tick();
+			scrollToBottom();
 		} catch (err) {
 			addMessage('Failed to initialize game: ' + err.message, 'received');
 			console.error(err);
@@ -351,14 +359,38 @@
 			window.addEventListener('resize', handleViewportResize);
 		}
 
+
+
 		commandInputEl?.addEventListener('focus', () => {
+			// Multiple scrollToBottom attempts for keyboard open
+			scrollToBottom();
+			setTimeout(scrollToBottom, 100);
+			setTimeout(scrollToBottom, 300);
+			setTimeout(scrollToBottom, 500);
 			setTimeout(handleViewportResize, 100);
 			setTimeout(handleViewportResize, 300);
 			setTimeout(handleViewportResize, 500);
 		});
 
 		commandInputEl?.addEventListener('blur', () => {
+			// Restore container height/top and transform when keyboard closes
+			const restoreAndScroll = () => {
+				if (window.visualViewport && phoneContainerEl) {
+					phoneContainerEl.style.height = '';
+					phoneContainerEl.style.top = '';
+					phoneContainerEl.style.transform = '';
+				}
+				scrollToBottom();
+			};
+			// Multiple scrollToBottom attempts for keyboard close
 			scrollToBottom();
+			setTimeout(restoreAndScroll, 10);
+			setTimeout(restoreAndScroll, 100);
+			setTimeout(restoreAndScroll, 300);
+			setTimeout(restoreAndScroll, 500);
+			setTimeout(scrollToBottom, 100);
+			setTimeout(scrollToBottom, 300);
+			setTimeout(scrollToBottom, 500);
 		});
 
 		if (!isMobileDevice()) commandInputEl?.focus();
