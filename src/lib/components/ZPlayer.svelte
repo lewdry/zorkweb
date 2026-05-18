@@ -1,23 +1,26 @@
 <script>
-	import { onMount, onDestroy, tick } from 'svelte';
-	import JSZM from '$lib/jszm.js';
-	import { base } from '$app/paths';
+	import { onMount, onDestroy, tick } from "svelte";
+	import JSZM from "$lib/jszm.js";
+	import { base } from "$app/paths";
 
 	/** @type {{ gameId: string, romPath: string, gameName: string, gameSubtitle: string, themeColor?: 'primary'|'secondary'|'accent', coverImage?: string | null }} */
-	let { gameId, romPath, gameName, gameSubtitle, themeColor = 'accent', coverImage = null } = $props();
+	let {
+		gameId,
+		romPath,
+		gameName,
+		gameSubtitle,
+		themeColor = "accent",
+		coverImage = null,
+	} = $props();
 
 	// ── Reactive UI state ────────────────────────────────────
-	/** @type {Array<{id: number, type: 'received'|'sent'|'copyright', text: string, titleLine?: string}>} */
+	/** @type {Array<{id: number, type: 'received'|'sent'|'copyright', text: string}>} */
 	let messages = $state([]);
-	let commandValue = $state('');
+	let commandValue = $state("");
 	let isWaitingForInput = $state(false);
 	let isSendDisabled = $state(false);
 	let fabHidden = $state(true);
-	let inputMode = $state('none');
-// ── Input focus handler for iOS accessory bar hack ───────
-function handleInputFocus() {
-	inputMode = 'text';
-}
+	let isVoiceModeActive = $state(false);
 
 	// ── DOM refs ─────────────────────────────────────────────
 	/** @type {HTMLDivElement} */
@@ -34,46 +37,57 @@ function handleInputFocus() {
 	// ── Engine state (non-reactive) ───────────────────────────
 	let jszm = null;
 	let runner = null;
-	let textBuffer = '';
+	let textBuffer = "";
 	let justSaved = false;
 	let justRestored = false;
 	let isAutoSaving = false;
 	let isAutoRestoring = false;
 	let isWaitingForRestart = false;
 	let msgIdCounter = 0;
+	let wakeLock = null;
+	let isListening = $state(false);
+	let recognition = null;
 
 	const saveKey = $derived(`${gameId}-save`);
 	const historyKey = $derived(`${gameId}-history`);
 	// ── Theme color mapping ──────────────────────────────────
 	const themeBgColor = $derived(
-		themeColor === 'primary'
-			? 'var(--color-primary)'
-			: themeColor === 'secondary'
-				? 'var(--color-secondary)'
-				: 'var(--color-accent)'
+		themeColor === "primary"
+			? "var(--color-primary)"
+			: themeColor === "secondary"
+				? "var(--color-secondary)"
+				: "var(--color-accent)",
 	);
 
 	const themeContentColor = $derived(
-		themeColor === 'primary'
-			? 'var(--color-primary-content)'
-			: themeColor === 'secondary'
-				? 'var(--color-secondary-content)'
-				: 'var(--color-accent-content)'
+		themeColor === "primary"
+			? "var(--color-primary-content)"
+			: themeColor === "secondary"
+				? "var(--color-secondary-content)"
+				: "var(--color-accent-content)",
 	);
 
 	// ── Helpers ───────────────────────────────────────────────
 	function isMobileDevice() {
 		// More strict: check user agent OR (small window AND touch)
 		const ua = navigator.userAgent.toLowerCase();
-		const isMobileUA = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua);
-		const isSmallAndTouch = window.innerWidth <= 800 && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+		const isMobileUA =
+			/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+				ua,
+			);
+		const isSmallAndTouch =
+			window.innerWidth <= 800 &&
+			("ontouchstart" in window || navigator.maxTouchPoints > 0);
 		return isMobileUA || isSmallAndTouch;
 	}
 
 	function scrollToBottom(smooth = false) {
 		if (!messageAreaEl) return;
 		if (smooth) {
-			messageAreaEl.scrollTo({ top: messageAreaEl.scrollHeight, behavior: 'smooth' });
+			messageAreaEl.scrollTo({
+				top: messageAreaEl.scrollHeight,
+				behavior: "smooth",
+			});
 		} else {
 			messageAreaEl.scrollTop = messageAreaEl.scrollHeight;
 		}
@@ -83,24 +97,21 @@ function handleInputFocus() {
 	function updateScrollFab() {
 		if (!messageAreaEl) return;
 		const distFromBottom =
-			messageAreaEl.scrollHeight - messageAreaEl.scrollTop - messageAreaEl.clientHeight;
+			messageAreaEl.scrollHeight -
+			messageAreaEl.scrollTop -
+			messageAreaEl.clientHeight;
 		fabHidden = distFromBottom < 100;
 	}
 
-	function addMessage(text, type = 'received') {
+	function addMessage(text, type = "received") {
 		if (!text.trim()) return;
 		const trimmedText = text.trim();
 		/** @type {any} */
 		let msg;
-		if (type === 'received') {
-			const lines = trimmedText.split('\n');
+		if (type === "received") {
+			const lines = trimmedText.split("\n");
 			if (lines.length > 1) {
-				msg = {
-					id: ++msgIdCounter,
-					type,
-					titleLine: lines[0],
-					text: lines.slice(1).join('\n').trim()
-				};
+				msg = { id: ++msgIdCounter, type, text: trimmedText };
 				// Do not blur on mobile to avoid iOS search/find bubble
 				if (!isMobileDevice()) {
 					commandInputEl?.blur();
@@ -117,7 +128,10 @@ function handleInputFocus() {
 	}
 
 	async function addCopyright(text) {
-		messages = [...messages, { id: ++msgIdCounter, type: 'copyright', text }];
+		messages = [
+			...messages,
+			{ id: ++msgIdCounter, type: "copyright", text },
+		];
 		await tick();
 		scrollToBottom();
 	}
@@ -127,16 +141,18 @@ function handleInputFocus() {
 		if (!textBuffer) return;
 		let text = textBuffer;
 		// Strip trailing Z-machine prompt ">"
-		text = text.replace(/\n?>\s*$/, '');
-		textBuffer = '';
+		text = text.replace(/\n?>\s*$/, "");
+		textBuffer = "";
 
 		if (justSaved || justRestored) {
 			justSaved = false;
 			justRestored = false;
-			if (text.trim() === 'Ok.') return;
+			if (text.trim() === "Ok.") return;
 		}
 
 		if (!text.trim()) return;
+
+		let textToSpeak = "";
 
 		// Split copyright header from first room description
 		const serialRegex = /(Serial number \d{6})(?:\s*\n)+/;
@@ -145,11 +161,19 @@ function handleInputFocus() {
 			const splitIndex = match.index + match[0].length;
 			const part2 = text.substring(splitIndex).trim();
 			addCopyright(
-				'© 1980–1982 Infocom, Inc. Zork is a registered trademark of Activision Publishing, Inc.'
+				"© 1980–1982 Infocom, Inc. Zork is a registered trademark of Activision Publishing, Inc.",
 			);
-			if (part2) addMessage(part2, 'received');
+			if (part2) {
+				addMessage(part2, "received");
+				textToSpeak = part2;
+			}
 		} else {
-			addMessage(text, 'received');
+			addMessage(text, "received");
+			textToSpeak = text;
+		}
+
+		if (isVoiceModeActive && textToSpeak) {
+			speakAndListen(textToSpeak);
 		}
 	}
 
@@ -158,14 +182,14 @@ function handleInputFocus() {
 		try {
 			let result = runner.next(resumeValue);
 			while (!result.done) {
-				if (result.value && result.value.type === 'waitForInput') {
+				if (result.value && result.value.type === "waitForInput") {
 					// If we are auto-restoring, send the restore command, then continue
 					if (isAutoRestoring) {
 						isAutoRestoring = false;
-						textBuffer = '';
+						textBuffer = "";
 						setTimeout(() => {
 							// Send the restore command, then re-enter runMachine
-							runMachine('restore\n');
+							runMachine("restore\n");
 						}, 0);
 						return;
 					}
@@ -182,7 +206,7 @@ function handleInputFocus() {
 					} else {
 						isAutoSaving = true;
 						isWaitingForInput = false;
-						setTimeout(() => runMachine('save\n'), 0);
+						setTimeout(() => runMachine("save\n"), 0);
 					}
 					return;
 				}
@@ -190,46 +214,48 @@ function handleInputFocus() {
 			}
 			if (result.done) {
 				flushBuffer();
-				addMessage('--- GAME OVER ---', 'received');
+				addMessage("--- GAME OVER ---", "received");
 			}
 		} catch (e) {
-			console.error('Z-Machine Error:', e);
-			addMessage('Error: ' + e.message, 'received');
+			console.error("Z-Machine Error:", e);
+			addMessage("Error: " + e.message, "received");
 		}
 	}
 
 	// ── Form submit handler ───────────────────────────────────
 	function handleSubmit(e) {
-		e.preventDefault();
+		if (e) e.preventDefault();
 		const command = commandValue.trim();
 		if (!command) return;
 
-		if ('vibrate' in navigator) navigator.vibrate(10);
+		if ("vibrate" in navigator) navigator.vibrate(10);
 
-		addMessage(command, 'sent');
-		commandValue = '';
+		addMessage(command, "sent");
+		commandValue = "";
 
 		if (isWaitingForRestart) {
 			isWaitingForRestart = false;
 			const normalized = command.toLowerCase();
-			if (normalized === 'yes' || normalized === 'y') {
-				addMessage('Restarting…', 'received');
+			if (normalized === "yes" || normalized === "y") {
+				addMessage("Restarting…", "received");
+				speakAndListen("Restarting…");
 				localStorage.removeItem(saveKey);
 				localStorage.removeItem(historyKey);
 				setTimeout(() => location.reload(), 1000);
 			} else {
-				addMessage('Game continuing…', 'received');
+				addMessage("Game continuing…", "received");
+				speakAndListen("Game continuing…");
 			}
 			return;
 		}
 
 		const normalizedCmd = command.toLowerCase();
-		if (normalizedCmd === 'reset' || normalizedCmd === 'restart') {
+		if (normalizedCmd === "reset" || normalizedCmd === "restart") {
 			isWaitingForRestart = true;
-			addMessage(
-				'Start a new game? This will clear all progress and your save. Say yes to begin again.',
-				'received'
-			);
+			const resetMsg =
+				"Start a new game? This will clear all progress and your save. Say yes to begin again.";
+			addMessage(resetMsg, "received");
+			speakAndListen(resetMsg);
 			return;
 		}
 
@@ -237,11 +263,11 @@ function handleInputFocus() {
 			isWaitingForInput = false;
 			isSendDisabled = true;
 			setTimeout(() => {
-				runMachine(command + '\n');
+				runMachine(command + "\n");
 				isSendDisabled = false;
 			}, 500);
 		} else {
-			console.warn('Engine not ready for input');
+			console.warn("Engine not ready for input");
 		}
 
 		if (isMobileDevice()) {
@@ -251,19 +277,246 @@ function handleInputFocus() {
 		}
 	}
 
+	// ── Voice Mode Logic ──────────────────────────────────────
+	function stopVoiceMode() {
+		isVoiceModeActive = false;
+		window.speechSynthesis.cancel();
+		isListening = false;
+		if (recognition) recognition.abort();
+		if (wakeLock) {
+			wakeLock.release().catch(console.error);
+			wakeLock = null;
+		}
+	}
+
+	async function toggleVoiceMode() {
+		const SpeechRecognition =
+			window.SpeechRecognition || window.webkitSpeechRecognition;
+		if (!SpeechRecognition) {
+			addMessage(
+				"Voice mode is not supported in this browser.",
+				"received",
+			);
+			return;
+		}
+
+		if (!isVoiceModeActive) {
+			isVoiceModeActive = true;
+			try {
+				if ("wakeLock" in navigator) {
+					wakeLock = await navigator.wakeLock.request("screen");
+				}
+			} catch (err) {
+				console.warn("Wake Lock request failed:", err);
+			}
+
+			// Read last received message to kick off loop, or a greeting
+			const lastReceived = messages
+				.slice()
+				.reverse()
+				.find(
+					(m) =>
+						m.type === "received" && m.text !== "--- GAME OVER ---",
+				);
+			if (lastReceived) {
+				speakAndListen(lastReceived.text);
+			} else {
+				speakAndListen("Voice mode activated. What now?");
+			}
+		} else {
+			stopVoiceMode();
+		}
+	}
+
+	function speakAndListen(text) {
+		if (!isVoiceModeActive) return;
+
+		window.speechSynthesis.cancel();
+
+		// Strip out HTML tags just in case
+		const plainText = text.replace(/<[^>]*>?/gm, "");
+		const utterance = new SpeechSynthesisUtterance(plainText);
+
+		utterance.onend = () => {
+			if (!isVoiceModeActive) return;
+			setTimeout(() => {
+				startListening();
+			}, 200);
+		};
+
+		utterance.onerror = (e) => {
+			console.warn("Speech synthesis error:", e);
+			if (isVoiceModeActive && !window.speechSynthesis.speaking) startListening();
+		};
+
+		if (recognition) {
+			recognition.abort();
+		}
+		window.speechSynthesis.speak(utterance);
+	}
+
+	function startListening() {
+		if (!isVoiceModeActive || isListening) return;
+
+		const SpeechRecognition =
+			window.SpeechRecognition || window.webkitSpeechRecognition;
+		const SpeechGrammarList =
+			window.SpeechGrammarList || window.webkitSpeechGrammarList;
+		if (!SpeechRecognition) return;
+
+		recognition = new SpeechRecognition();
+
+		if (SpeechGrammarList) {
+			const vocabulary = [
+				// Directions
+				"n",
+				"s",
+				"e",
+				"w",
+				"ne",
+				"nw",
+				"se",
+				"sw",
+				"u",
+				"d",
+				"north",
+				"south",
+				"east",
+				"west",
+				"northeast",
+				"northwest",
+				"southeast",
+				"southwest",
+				"up",
+				"down",
+				"enter",
+				"exit",
+				"in",
+				"out",
+				"climb",
+				"cross",
+				// Verbs
+				"get",
+				"take",
+				"drop",
+				"put",
+				"open",
+				"close",
+				"read",
+				"look",
+				"examine",
+				"turn on",
+				"turn off",
+				"move",
+				"attack",
+				"kill",
+				"burn",
+				"tie",
+				"untie",
+				"inventory",
+				"score",
+				"diagnose",
+				"wait",
+				"again",
+				"save",
+				"restore",
+				// Nouns
+				"lamp",
+				"lantern",
+				"sword",
+				"mailbox",
+				"leaflet",
+				"troll",
+				"grue",
+				"sack",
+				"bottle",
+				"water",
+				"case",
+				"house",
+				"window",
+				"door",
+				"key",
+				"all",
+			];
+			const grammar =
+				"#JSGF V1.0; grammar zork; public <command> = " +
+				vocabulary.join(" | ") +
+				" ;";
+			const speechRecognitionList = new SpeechGrammarList();
+			speechRecognitionList.addFromString(grammar, 1);
+			recognition.grammars = speechRecognitionList;
+		}
+
+		recognition.continuous = false;
+		recognition.interimResults = false;
+
+		recognition.onstart = () => {
+			isListening = true;
+		};
+
+		recognition.onresult = (event) => {
+			isListening = false;
+			if (!isVoiceModeActive) return;
+			const transcript = event.results[0][0].transcript;
+			commandValue = transcript;
+			handleSubmit();
+		};
+
+		recognition.onabort = () => {
+			isListening = false;
+		};
+
+		recognition.onend = () => {
+			isListening = false;
+			// Gracefully restart if still active and not speaking
+			if (isVoiceModeActive && !window.speechSynthesis.speaking) {
+				startListening();
+			}
+		};
+
+		recognition.onerror = (event) => {
+			console.warn("Speech recognition error:", event.error);
+			isListening = false;
+			// onend will fire and restart it
+		};
+
+		try {
+			recognition.start();
+		} catch (e) {
+			console.warn("Could not start recognition:", e);
+			isListening = false;
+		}
+	}
+
+	function handleVisibilityChange() {
+		if (document.visibilityState === "hidden" && isVoiceModeActive) {
+			stopVoiceMode();
+		} else if (document.visibilityState === "visible" && isVoiceModeActive) {
+			if ("wakeLock" in navigator) {
+				navigator.wakeLock
+					.request("screen")
+					.then((lock) => {
+						wakeLock = lock;
+					})
+					.catch(console.warn);
+			}
+		}
+	}
+
 	// ── Viewport / keyboard resize (mobile) ───────────────────
 	function handleViewportResize() {
-		       if (!isMobileDevice()) return;
-		       window.scrollTo(0, 0);
-		       if (window.visualViewport && phoneContainerEl) {
-			       const viewport = window.visualViewport;
-			       const keyboardHeight = window.innerHeight - viewport.height;
-			       phoneContainerEl.style.paddingBottom = keyboardHeight > 0 ? `${keyboardHeight}px` : '0';
-			       phoneContainerEl.style.top = `${viewport.offsetTop}px`;
-		       }
-		       requestAnimationFrame(() => {
-			       scrollToBottom();
-		       });
+		if (!isMobileDevice()) return;
+		window.scrollTo(0, 0);
+		if (window.visualViewport && phoneContainerEl) {
+			const viewport = window.visualViewport;
+			const keyboardHeight = window.innerHeight - viewport.height;
+			phoneContainerEl.style.paddingBottom =
+				keyboardHeight > 0 ? `${keyboardHeight}px` : "0";
+			phoneContainerEl.style.top = `${viewport.offsetTop}px`;
+		}
+		requestAnimationFrame(() => {
+			scrollToBottom();
+		});
 	}
 
 	// ── Initialise engine ─────────────────────────────────────
@@ -280,7 +533,7 @@ function handleInputFocus() {
 			};
 
 			jszm.read = function* (maxlen) {
-				return yield { type: 'waitForInput', maxlen };
+				return yield { type: "waitForInput", maxlen };
 			};
 
 			jszm.updateStatusLine = function* (_text, _left, _right) {
@@ -296,7 +549,7 @@ function handleInputFocus() {
 					justSaved = true;
 					return 1;
 				} catch (err) {
-					console.error('Save failed', err);
+					console.error("Save failed", err);
 					return 0;
 				}
 			};
@@ -307,11 +560,12 @@ function handleInputFocus() {
 					if (!base64) return null;
 					const binary = atob(base64);
 					const data = new Uint8Array(binary.length);
-					for (let i = 0; i < binary.length; i++) data[i] = binary.charCodeAt(i);
+					for (let i = 0; i < binary.length; i++)
+						data[i] = binary.charCodeAt(i);
 					justRestored = true;
 					return data;
 				} catch (err) {
-					console.error('Restore failed', err);
+					console.error("Restore failed", err);
 					return null;
 				}
 			};
@@ -326,7 +580,10 @@ function handleInputFocus() {
 					try {
 						const parsed = JSON.parse(history);
 						messages = parsed;
-						msgIdCounter = parsed.length > 0 ? Math.max(...parsed.map((m) => m.id)) : 0;
+						msgIdCounter =
+							parsed.length > 0
+								? Math.max(...parsed.map((m) => m.id))
+								: 0;
 						await tick();
 						scrollToBottom();
 					} catch {
@@ -339,28 +596,33 @@ function handleInputFocus() {
 			await tick();
 			scrollToBottom();
 		} catch (err) {
-			addMessage('Failed to initialize game: ' + err.message, 'received');
+			addMessage("Failed to initialize game: " + err.message, "received");
 			console.error(err);
 		}
 	}
 
 	// ── Lifecycle ─────────────────────────────────────────────
 	onMount(() => {
-		document.body.classList.add('game-active');
-
+		document.body.classList.add("game-active");
 
 		if (window.visualViewport) {
-			window.visualViewport.addEventListener('resize', handleViewportResize);
-			window.visualViewport.addEventListener('scroll', handleViewportResize);
+			window.visualViewport.addEventListener(
+				"resize",
+				handleViewportResize,
+			);
+			window.visualViewport.addEventListener(
+				"scroll",
+				handleViewportResize,
+			);
 			// Initial adjustment
 			handleViewportResize();
 		} else {
-			window.addEventListener('resize', handleViewportResize);
+			window.addEventListener("resize", handleViewportResize);
 		}
 
+		document.addEventListener("visibilitychange", handleVisibilityChange);
 
-
-		commandInputEl?.addEventListener('focus', () => {
+		commandInputEl?.addEventListener("focus", () => {
 			// Multiple scrollToBottom attempts for keyboard open
 			scrollToBottom();
 			setTimeout(scrollToBottom, 100);
@@ -371,13 +633,17 @@ function handleInputFocus() {
 			setTimeout(handleViewportResize, 500);
 		});
 
-		commandInputEl?.addEventListener('blur', () => {
+		commandInputEl?.addEventListener("blur", () => {
 			// Restore container height/top and transform when keyboard closes
 			const restoreAndScroll = () => {
-				if (window.visualViewport && phoneContainerEl && isMobileDevice()) {
-					phoneContainerEl.style.height = '100dvh';
-					phoneContainerEl.style.top = '0';
-					phoneContainerEl.style.transform = 'none';
+				if (
+					window.visualViewport &&
+					phoneContainerEl &&
+					isMobileDevice()
+				) {
+					phoneContainerEl.style.height = "100dvh";
+					phoneContainerEl.style.top = "0";
+					phoneContainerEl.style.transform = "none";
 				}
 				scrollToBottom();
 			};
@@ -398,13 +664,24 @@ function handleInputFocus() {
 	});
 
 	onDestroy(() => {
-		document.body.classList.remove('game-active');
+		document.body.classList.remove("game-active");
+		stopVoiceMode();
 		if (window.visualViewport) {
-			window.visualViewport.removeEventListener('resize', handleViewportResize);
-			window.visualViewport.removeEventListener('scroll', handleViewportResize);
+			window.visualViewport.removeEventListener(
+				"resize",
+				handleViewportResize,
+			);
+			window.visualViewport.removeEventListener(
+				"scroll",
+				handleViewportResize,
+			);
 		} else {
-			window.removeEventListener('resize', handleViewportResize);
+			window.removeEventListener("resize", handleViewportResize);
 		}
+		document.removeEventListener(
+			"visibilitychange",
+			handleVisibilityChange,
+		);
 	});
 </script>
 
@@ -415,14 +692,36 @@ function handleInputFocus() {
 >
 	<!-- Header (single instance, with Home button) -->
 	<div class="app-header border-base-200">
-		<a href="{base}/" class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2" title="Back to home">
+		<a
+			href="{base}/"
+			class="btn btn-ghost btn-xs absolute left-3 top-1/2 -translate-y-1/2"
+			title="Back to home"
+		>
 			<i class="fas fa-home text-sm"></i>
 		</a>
+		<button
+			class="btn btn-ghost btn-xs absolute right-3 top-1/2 -translate-y-1/2"
+			title="Toggle Voice Mode"
+			onclick={toggleVoiceMode}
+			aria-pressed={isVoiceModeActive}
+		>
+			<i
+				class="fas {isVoiceModeActive
+					? 'fa-phone-slash'
+					: 'fa-phone'} text-sm {isVoiceModeActive
+					? 'text-error'
+					: ''}"
+			></i>
+		</button>
 		<div class="avatar-container">
 			<div class="avatar">
 				<div class="w-12 h-12 rounded-full overflow-hidden">
 					{#if coverImage}
-						<img src={coverImage} alt="{gameName} cover" class="object-cover w-full h-full" />
+						<img
+							src={coverImage}
+							alt="{gameName} cover"
+							class="object-cover w-full h-full"
+						/>
 					{:else}
 						<div
 							class="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-600 to-amber-400 text-base-100 font-bold text-xs"
@@ -439,8 +738,6 @@ function handleInputFocus() {
 		</div>
 	</div>
 
-
-
 	<!-- Message area -->
 	<div
 		class="message-area bg-base-200/30 message-font-fix"
@@ -452,18 +749,15 @@ function handleInputFocus() {
 		aria-label="Game output"
 	>
 		{#each messages as msg (msg.id)}
-			{#if msg.type === 'copyright'}
+			{#if msg.type === "copyright"}
 				<p class="message-copyright">{msg.text}</p>
 			{:else}
-				<div class="message-item {msg.type === 'sent' ? 'message-sent' : 'message-received'}">
-					{#if msg.titleLine}
-						<span class="font-bold block mb-1">{msg.titleLine}</span>
-						{#if msg.text}
-							{@html msg.text}
-						{/if}
-					{:else}
-						{@html msg.text}
-					{/if}
+				<div
+					class="message-item {msg.type === 'sent'
+						? 'message-sent'
+						: 'message-received'}"
+				>
+					{@html msg.text}
 				</div>
 			{/if}
 		{/each}
@@ -471,7 +765,9 @@ function handleInputFocus() {
 
 	<!-- Scroll-to-bottom FAB -->
 	<button
-		class="scroll-fab btn btn-circle btn-sm btn-neutral shadow-lg {fabHidden ? 'fab-hidden' : ''}"
+		class="scroll-fab btn btn-circle btn-sm btn-neutral shadow-lg {fabHidden
+			? 'fab-hidden'
+			: ''}"
 		onclick={() => scrollToBottom(true)}
 		aria-label="Scroll to bottom"
 		tabindex={fabHidden ? -1 : 0}
@@ -479,10 +775,11 @@ function handleInputFocus() {
 		<i class="fas fa-chevron-down text-neutral-content"></i>
 	</button>
 
-
 	<!-- Input area -->
 	<div class="input-area border-base-200 bg-base-100" bind:this={inputAreaEl}>
-		<div class="input-wrapper flex items-center gap-2 p-1 rounded-full w-full bg-base-200">
+		<div
+			class="input-wrapper flex items-center gap-2 p-1 rounded-full w-full bg-base-200 {isListening ? 'listening-glow' : ''}"
+		>
 			<form
 				id="input-form"
 				role="presentation"
@@ -492,9 +789,9 @@ function handleInputFocus() {
 			>
 				<textarea
 					rows="1"
-					name="z_99_cmd_input_xyz"
+					name="command"
 					id="zmachine-command"
-					placeholder="What now?"
+					placeholder={isListening ? "Listening..." : "What now?"}
 					bind:value={commandValue}
 					bind:this={commandInputEl}
 					autocomplete="off"
@@ -504,25 +801,24 @@ function handleInputFocus() {
 					enterkeyhint="send"
 					inputmode="text"
 					onkeydown={(e) => {
-						if (e.key === 'Enter' && !e.shiftKey) {
+						if (e.key === "Enter" && !e.shiftKey) {
 							e.preventDefault();
 							handleSubmit(e);
 						}
 					}}
 					class="input input-ghost input-font-fix resize-none py-2 flex-1 focus:bg-transparent focus:outline-none border-none"
 					aria-label="Command input"
-					   onfocus={handleInputFocus}
-					></textarea>
+				></textarea>
 			</form>
 			<button
 				type="button"
 				disabled={isSendDisabled}
 				class="btn btn-circle btn-md"
-				class:btn-accent={themeColor === 'accent'}
-				class:btn-secondary={themeColor === 'secondary'}
-				class:btn-primary={themeColor === 'primary'}
+				class:btn-accent={themeColor === "accent"}
+				class:btn-secondary={themeColor === "secondary"}
+				class:btn-primary={themeColor === "primary"}
 				aria-label="Send command"
-				   onclick={handleSubmit}
+				onclick={handleSubmit}
 			>
 				<i class="fas fa-arrow-up text-primary-content"></i>
 			</button>

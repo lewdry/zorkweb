@@ -38,6 +38,14 @@
 		name="description"
 		content="Play Zork I, II, and III in your browser. A modern message interface powered by the JSZM engine, Svelte and Daisy UI."
 	/>
+	<meta name="author" content="Lewis Dryburgh" />
+	<meta name="robots" content="index, follow" />
+	<meta property="og:title" content="Zork for the Web" />
+	<meta
+		property="og:description"
+		content="Play Zork I, II, and III in your browser. A modern message interface powered by the JSZM engine, Svelte and Daisy UI."
+	/>
+	<meta property="og:type" content="website" />
 </svelte:head>
 
 <!-- Hero -->
@@ -52,7 +60,8 @@
 				class="text-base-content/70 text-base leading-relaxed max-w-xl mx-auto"
 			>
 				Zork defined interactive fiction in 1980. Zork for the Web runs
-				the original source code inside a modern chat interface.
+				the original source code in a modern chat interface, with
+				optional voice mode.
 			</p>
 		</div>
 
@@ -109,7 +118,7 @@
 		<div
 			class="prose prose-xs max-w-xl mx-auto text-base-content/40 text-center mb-0 p-0"
 		>
-			<p class="text-xs leading-snug mb-0 p-0">
+			<p class="text-sm leading-snug mb-0 p-0">
 				Zork for the Web is an independent fan project made possible by
 				Microsoft's 2025 release of the Zork source code. It makes the
 				original trilogy accessible to everyone, returning fans or new
@@ -117,10 +126,11 @@
 			</p>
 			<div class="my-2"></div>
 			<!-- Copyright blurb -->
-			<p class="text-xs leading-snug mb-0 p-0">
-				Zork for the Web is not affiliated with
-				Microsoft or Activision. Zork is a registered trademark of its
-				respective owners. The web interface is a non-commercial, open-source project under the MIT License.
+			<p class="text-sm leading-snug mb-0 p-0">
+				Zork for the Web is not affiliated with Microsoft or Activision.
+				Zork is a registered trademark of its respective owners. The web
+				interface is a non-commercial, open-source project under the MIT
+				License.
 			</p>
 		</div>
 	</div>
