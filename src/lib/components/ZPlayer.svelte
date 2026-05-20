@@ -289,7 +289,7 @@
 		}
 	}
 
-	async function toggleVoiceMode() {
+	function toggleVoiceMode() {
 		const SpeechRecognition =
 			window.SpeechRecognition || window.webkitSpeechRecognition;
 		if (!SpeechRecognition) {
@@ -302,13 +302,6 @@
 
 		if (!isVoiceModeActive) {
 			isVoiceModeActive = true;
-			try {
-				if ("wakeLock" in navigator) {
-					wakeLock = await navigator.wakeLock.request("screen");
-				}
-			} catch (err) {
-				console.warn("Wake Lock request failed:", err);
-			}
 
 			// Read last received message to kick off loop, or a greeting
 			const lastReceived = messages
@@ -322,6 +315,14 @@
 				speakAndListen(lastReceived.text);
 			} else {
 				speakAndListen("Voice mode activated. What now?");
+			}
+
+			if ("wakeLock" in navigator) {
+				navigator.wakeLock.request("screen").then(lock => {
+					wakeLock = lock;
+				}).catch(err => {
+					console.warn("Wake Lock request failed:", err);
+				});
 			}
 		} else {
 			stopVoiceMode();
@@ -341,7 +342,7 @@
 			if (!isVoiceModeActive) return;
 			setTimeout(() => {
 				startListening();
-			}, 200);
+			}, 800);
 		};
 
 		utterance.onerror = (e) => {
