@@ -59,9 +59,8 @@
 			<p
 				class="text-base-content/70 text-base leading-relaxed max-w-xl mx-auto"
 			>
-				Zork defined interactive fiction in 1980. Zork for the Web runs
-				the original source code in a modern chat interface, with
-				optional voice mode.
+				Zork has defined interactive fiction since its release in 1977.<br />
+				Zork for the Web runs the original source code in a modern chat interface, with optional voice mode.
 			</p>
 		</div>
 
