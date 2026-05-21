@@ -81,6 +81,12 @@ body.game-active nav {
   }
 }
 
+/* Footer hyperlink underline */
+.prose a[href="https://lewisdryburgh.com"] {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+
 @media (max-width: 599px) {
   .layout-main {
     width: 100%;

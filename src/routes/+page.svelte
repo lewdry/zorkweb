@@ -41,6 +41,7 @@
 	<meta name="author" content="Lewis Dryburgh" />
 	<meta name="robots" content="index, follow" />
 	<meta property="og:title" content="Zork for the Web" />
+	<link rel="canonical" href="https://lewdry.github.io/zorkweb" />
 	<meta
 		property="og:description"
 		content="Play Zork I, II, and III in your browser. A modern message interface powered by the JSZM engine, Svelte and Daisy UI."
@@ -130,6 +131,11 @@
 				Zork is a registered trademark of its respective owners. The web
 				interface is a non-commercial, open-source project under the MIT
 				License.
+			</p>
+			<div class="my-2"></div>
+			<!-- Footer -->
+			<p class="text-sm leading-snug mb-0 p-0">
+				   Zork for the Web by <a href="https://lewisdryburgh.com" target="_blank" rel="noopener noreferrer">Lewis Dryburgh</a>
 			</p>
 		</div>
 	</div>
