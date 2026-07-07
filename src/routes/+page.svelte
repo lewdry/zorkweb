@@ -42,11 +42,19 @@
 	<meta name="robots" content="index, follow" />
 	<meta property="og:title" content="Zork for the Web" />
 	<link rel="canonical" href="https://lewdry.github.io/zorkweb" />
+	<meta property="og:url" content="https://lewdry.github.io/zorkweb" />
 	<meta
 		property="og:description"
 		content="Play Zork I, II, and III in your browser. A modern message interface powered by the JSZM engine, Svelte and Daisy UI."
 	/>
 	<meta property="og:type" content="website" />
+	<meta property="og:image" content="https://lewdry.github.io/zorkweb/zork-preview.png" />
+	<meta property="og:image:alt" content="Zork for the Web preview image" />
+	<meta name="twitter:title" content="Zork for the Web" />
+	<meta
+		name="twitter:description"
+		content="Play Zork I, II, and III in your browser. A modern message interface powered by the JSZM engine, Svelte and Daisy UI."
+	/>
 </svelte:head>
 
 <!-- Hero -->

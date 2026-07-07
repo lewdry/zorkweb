@@ -1,13 +1,26 @@
 <script>
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.png';
 	import Navbar from '$lib/components/Navbar.svelte';
 
 	let { children } = $props();
+
+	const websiteSchema = {
+		'@context': 'https://schema.org',
+		'@type': 'WebSite',
+		name: 'Lewis Dryburgh',
+		url: 'https://lewdry.github.io/'
+	};
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<link rel="apple-touch-icon" href="/favicon.png" />
+	<meta property="og:site_name" content="Lewis Dryburgh" />
+	<meta property="og:image" content="https://lewdry.github.io/zorkweb/zork-preview.png" />
+	<meta property="og:image:alt" content="Zork for the Web preview image" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:image" content="https://lewdry.github.io/zorkweb/zork-preview.png" />
+	<script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Sora:wght@100..800&display=swap"
