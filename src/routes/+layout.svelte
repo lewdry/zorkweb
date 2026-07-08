@@ -1,6 +1,5 @@
 <script>
 	import '../app.css';
-	import { base } from '$app/paths';
 	import Navbar from '$lib/components/Navbar.svelte';
 
 	let { children } = $props();
@@ -14,8 +13,6 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" type="image/png" href={`${base}/favicon.png`} />
-	<link rel="apple-touch-icon" href={`${base}/favicon.png`} />
 	<meta property="og:site_name" content="Lewis Dryburgh" />
 	<meta property="og:image" content="https://lewdry.github.io/zorkweb/zork-preview.png" />
 	<meta property="og:image:alt" content="Zork for the Web preview image" />
